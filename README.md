@@ -1,28 +1,12 @@
-DEVELOPER INSTRUCTIONS:
-=======================
+The Little Host module for Caddy
+=================================
 
-- Update module name in go.mod
-- Update dependencies to latest versions (**EXCEPT `caddy/v2` ITSELF**)
-- Update name and year in license
-- Customize configuration and Caddyfile parsing
-- Update godocs / comments (especially provider name and nuances)
-- Update README and remove this section
-
-Thank you for maintaining your Caddy plugin!
-
-_Remove this section before publishing._
-
----
-
-\<PROVIDER\> module for Caddy
-===========================
-
-This package contains a DNS provider module for [Caddy](https://github.com/caddyserver/caddy). It can be used to manage DNS records with \<PROVIDER\>.
+This package contains a DNS provider module for [Caddy](https://github.com/caddyserver/caddy). It can be used to manage DNS records with [The Little Host](https://thelittlehost.com).
 
 ## Caddy module name
 
 ```
-dns.providers.provider_name
+dns.providers.thelittlehost
 ```
 
 ## Config examples
@@ -35,9 +19,11 @@ To use this module for the ACME DNS challenge, [configure the ACME issuer in you
 	"challenges": {
 		"dns": {
 			"provider": {
-				"name": "provider_name",
-				"api_token": "YOUR_PROVIDER_API_TOKEN"
-			}
+				"name": "thelittlehost",
+				"api_token": "{env.TLH_API_TOKEN}",
+			},
+			"propagation_delay": "60s",
+			"propagation_timeout": "120s"
 		}
 	}
 }
@@ -48,13 +34,31 @@ or with the Caddyfile:
 ```
 # globally
 {
-	acme_dns provider_name ...
+	acme_dns thelittlehost {
+		api_token  {env.TLH_API_TOKEN}
+	}
 }
 ```
 
 ```
 # one site
 tls {
-	dns provider_name ...
+	dns thelittlehost {
+		api_token  {env.TLH_API_TOKEN}
+	}
+	propagation_delay  60s
+	propagation_timeout 120s
 }
 ```
+
+The `api_token` can also be provided inline:
+
+```
+tls {
+	dns thelittlehost {env.TLH_API_TOKEN}
+	propagation_delay  60s
+	propagation_timeout 120s
+}
+```
+
+> **Note:** The Little Host's DNS backend may take approximately 30 seconds to propagate new records to its authoritative nameservers. The `propagation_delay` and `propagation_timeout` values above account for this and are recommended for ACME DNS-01 challenges to succeed. These are standard Caddy TLS options — they cannot be set as defaults by the provider module.
