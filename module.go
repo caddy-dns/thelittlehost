@@ -25,7 +25,6 @@ func (Provider) CaddyModule() caddy.ModuleInfo {
 func (p *Provider) Provision(ctx caddy.Context) error {
 	repl := caddy.NewReplacer()
 	p.Provider.APIToken = repl.ReplaceAll(p.Provider.APIToken, "")
-	p.Provider.ServerURL = repl.ReplaceAll(p.Provider.ServerURL, "")
 	return nil
 }
 
